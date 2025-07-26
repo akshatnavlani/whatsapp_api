@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 
 let client;
-const TOKEN_PATH = path.join('/data', 'tokens');
+const TOKEN_PATH = path.join('./tokens'); // store in repo folder
 const QR_FILE = path.join(TOKEN_PATH, 'last.qr');
 
 // Ensure token directory exists
@@ -29,7 +29,8 @@ create({
         '--single-process',
         '--disable-gpu'
     ],
-    pathName: TOKEN_PATH,
+    pathName: TOKEN_PATH, // session folder in repo
+    createPathFileToken: true, // ensure session file created
 }).then((wppClient) => {
     client = wppClient;
     console.log("WhatsApp client ready");
