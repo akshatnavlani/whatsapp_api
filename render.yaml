@@ -1,0 +1,9 @@
+services:
+  - type: worker
+    name: wpp-bot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: session-data
+      mountPath: /tokens
+      sizeGB: 1
