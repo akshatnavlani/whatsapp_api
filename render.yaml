@@ -1,5 +1,5 @@
 services:
-  - type: worker
+  - type: web
     name: wpp-bot
     env: docker
     dockerfilePath: ./Dockerfile
@@ -7,3 +7,5 @@ services:
       name: session-data
       mountPath: /tokens
       sizeGB: 1
+    plan: free
+    autoDeploy: false

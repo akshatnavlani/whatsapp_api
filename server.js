@@ -59,6 +59,11 @@ app.get('/ping', (req, res) => {
 // Root route for health check
 app.get('/', (req, res) => res.send('Bot is running'));
 
+setInterval(() => {
+    fetch('https://your-app.onrender.com/ping').catch(()=>{});
+}, 14 * 60 * 1000); // every 5 mins
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
