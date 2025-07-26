@@ -7,23 +7,36 @@ const app = express()
 app.use(express.json())
 
 let client;
-const TOKEN_PATH = '/app/tokens' // persistent disk mount path on Render
-const QR_FILE = path.join(TOKEN_PATH, 'last.qr')
+
+// Use Render's writable persistent path
+const TOKEN_PATH = path.join('/data', 'tokens');
+const QR_FILE = path.join(TOKEN_PATH, 'last.qr');
 
 // Ensure token directory exists
-if (!fs.existsSync(TOKEN_PATH)) fs.mkdirSync(TOKEN_PATH, { recursive: true })
+if (!fs.existsSync(TOKEN_PATH)) {
+    fs.mkdirSync(TOKEN_PATH, { recursive: true });
+}
 
-// Start WPPConnect with persistent session
+// Start WPPConnect
 create({
     session: 'my-session',
     catchQR: (base64Qr) => {
-        fs.writeFileSync(QR_FILE, base64Qr) // Save latest QR to persistent file
+        fs.writeFileSync(QR_FILE, base64Qr); // Save QR to persistent storage
     },
     statusFind: (status) => console.log('Status:', status),
     headless: true,
     useChrome: false,
-    browserArgs: ['--no-sandbox'],
-    pathName: TOKEN_PATH, // persistent storage
+    browserArgs: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+    ],
+    pathName: TOKEN_PATH, // persistent token storage
 }).then((wppClient) => {
     client = wppClient;
     console.log("WhatsApp client ready");
@@ -51,19 +64,11 @@ app.post('/send', async (req, res) => {
     }
 });
 
-// Wake-up route
-app.get('/ping', (req, res) => {
-    res.send('OK');
-});
+// Keep-alive ping
+app.get('/ping', (req, res) => res.send({ status: 'OK', time: new Date() }));
 
-// Root route for health check
+// Health route
 app.get('/', (req, res) => res.send('Bot is running'));
 
-setInterval(() => {
-    fetch('https://your-app.onrender.com/ping').catch(()=>{});
-}, 14 * 60 * 1000); // every 5 mins
-
-
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

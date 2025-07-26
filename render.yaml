@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: whatsapp-bot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    disk:
+      name: session-data
+      mountPath: /data
+      sizeGB: 1
