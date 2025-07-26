@@ -4,7 +4,3 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free
-    disk:
-      name: session-data
-      mountPath: /data
-      sizeGB: 1
